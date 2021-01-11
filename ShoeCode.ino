@@ -142,18 +142,12 @@ void loop() {
 static boolean Fall = false;
 static boolean msg_sent = false;
 
-
-
-
-
-
-
 fr = analogRead(fs);
 Serial.print("Force reading: ");
 Serial.println(fr);
 int xRead = analogRead(x);
 int yRead = analogRead(y);
-int zRead = analogRead(z);
+int zRead = analogRead(z); 
 Serial.print("x: ");
  Serial.print(xRead);
  Serial.print(" | y: ");
@@ -170,19 +164,21 @@ Serial.print("x2: ");
  Serial.print(yRead2);
  Serial.print(" | z2: ");
  Serial.println(zRead2);
+ //that section above reads the force sensor and accelerometer then prints the readings for testing/debugging
 
- if (fr > 850){delay (10);
- Fall = false;
- msg_sent = false;}
- else{
- Movement = ((xRead + zRead + yRead) - (xRead2 + yRead2 + zRead2));
-
-  if(((315 < xRead2) && (xRead2 < 375)))
+ if (fr > 850){
+  delay (10);
+  Fall = false;
+  msg_sent = false;} //we found that above a certain force threshold we could assume you hadn't fallen and save time by not reading again
+ 
+  else{
+  Movement = ((xRead + zRead + yRead) - (xRead2 + yRead2 + zRead2)); //we defined movement as change in the angle of your foot 
+  if(((315 < xRead2) && (xRead2 < 375))) //within these bounds you could not have actually fallen. You would have to be on a mountain falling upright
  {delay (10);
  Fall = false;
  msg_sent = false;}
  else
-{ if((Movement > -10) && (Movement < 10)){ tone(9, 1000, 375);}}
+{ if((Movement > -10) && (Movement < 10)){ tone(9, 1000, 375);}} //this sends a warning tone that you may have fallen and we noticed
     if(((315 < yRead2) && (yRead2 < 375)))
  {delay (5000);
  Fall = false;
@@ -192,7 +188,8 @@ if (fr > 950)
 {delay (5000);
  Fall = false;
  msg_sent = false;}
-delay (5000);
+delay (5000); //above the idea is that if you moved significantly or were in a different set of bounds you still could not have fallen.
+              //the following should've been abridged by way of a helper function, but at the original time of creation I somehow didn't see that
  fr = analogRead(fs);
 Serial.print("Force reading: ");
 Serial.print(fr);
@@ -228,7 +225,7 @@ if(((315 < xRead2) && (xRead2 < 375) && (fr > 850)))
  if(Fall && !msg_sent){ //send the sms
    Serial.println("Sending SMS");
 
-  sendSMS(sendNumber, URLEncode("Someone has fallen and requested you be contacted by the NARC fall detection systems."));
+  sendSMS(sendNumber, URLEncode("Someone has fallen and requested you be contacted by the NARC fall detection systems.")); //the message we send
    digitalWrite(9, HIGH);
    msg_sent = true;
  }}}
